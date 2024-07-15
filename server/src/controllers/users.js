@@ -1,5 +1,6 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const getUsers = async (req, res) => {
   try {
@@ -24,4 +25,17 @@ export const createUser = async (req, res) => {
   } catch (error) {
     return res.send(error);
   }
+};
+
+export const login = (req, res, next) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((userInformation) => {
+      res.send({
+        token: jwt.sign({ _id: userInformation._id }, "super-strong-secret", {
+          expiresIn: "7d",
+        }),
+      });
+    })
+    .catch(next);
 };

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const UserSchema = new mongoose.Schema(
   {
@@ -19,6 +20,23 @@ const UserSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+  }
+);
+
+UserSchema.static(
+  "findUserByCredentials",
+  function findUserByCredentials(email, password) {
+    return this.findOne({ email }).then((user) => {
+      if (!user) {
+        return Promise.reject(cosole.log("err"));
+      }
+      return bcrypt.compare(password, user.passwordHash).then((matched) => {
+        if (!matched) {
+          return Promise.reject(cosole.log("err"));
+        }
+        return user;
+      });
+    });
   }
 );
 

@@ -2,8 +2,9 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { registrationValidator } from "./validations/auth.js";
-import { validationResult } from "express-validator";
+import auth from "./middlewares/auth.js";
 import userRouter from "./routes/user.js";
+import { createUser, login } from "./controllers/users.js";
 
 const app = express();
 app.use(express.json());
@@ -11,17 +12,9 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("HELLO");
 });
-/* app.post("/auth/register", registrationValidator, (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json(errors.array());
-  }
-
-  res.json({
-    success: true,
-  });
-}); */
-
+app.post("/signin", login);
+app.post("/signup", registrationValidator, createUser);
+app.use(auth);
 app.use("/user", userRouter);
 const connect = async () => {
   mongoose.set("strictQuery", true);
